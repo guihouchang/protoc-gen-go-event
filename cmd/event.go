@@ -64,6 +64,8 @@ func generateFile(gen *protogen.Plugin, file *protogen.File, omitempty bool) *pr
 
 // generateFileContent generates the kratos errors definitions, excluding the package statement.
 func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, omitempty bool) {
+	log.Debug("11111111111")
+
 	if len(file.Services) == 0 {
 		return
 	}
@@ -107,6 +109,9 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		path := str
 		sd.Methods = append(sd.Methods, buildMethodDesc(g, method, "", path))
 	}
+
+	log.Debug("2222222222")
+
 	if len(sd.Methods) != 0 {
 		g.P(sd.execute())
 	}
