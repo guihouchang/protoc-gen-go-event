@@ -8,6 +8,9 @@ import "event/options/event.proto";
 option go_package = "code.aliyun.com/fz.7799520.com/protoc-gen-go-event/test/pb";
 
 service TestService {
+  rpc TestMethod1 (TestRequest) returns (TestResponse) {
+  }
+
   rpc TestMethod (TestRequest) returns (TestResponse) {
     option (event.eventName) = "/test/test";
   }

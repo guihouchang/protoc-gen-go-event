@@ -3,7 +3,7 @@ TEST_PROTO_FILES=$(shell find test/pb -name *.proto)
 .PHONY: event-test
 # generate event proto
 event-test:
-	cd ./cmd && go build -o protoc-gen-go-event && cd ../ && protoc --plugin=./cmd/protoc-gen-go-event \
+	go build -o protoc-gen-go-event && protoc --plugin=./protoc-gen-go-event \
 		   --proto_path=./ \
 		   --proto_path=./pb \
 	       --proto_path=./test/pb \
