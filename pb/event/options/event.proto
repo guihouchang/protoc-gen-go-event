@@ -5,6 +5,7 @@ option go_package = "code.aliyun.com/fz.7799520.com/protoc-gen-go-event/pb/event
 
 import "google/protobuf/descriptor.proto";
 
+
 extend google.protobuf.MethodOptions {
   string eventName = 73295728;
 }
