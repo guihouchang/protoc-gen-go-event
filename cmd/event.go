@@ -44,7 +44,7 @@ var methodSets = make(map[string]int)
 
 // generateFile generates a _event.pb.go file containing kratos errors definitions.
 func generateFile(gen *protogen.Plugin, file *protogen.File, omitempty bool) *protogen.GeneratedFile {
-	if len(file.Services) == 0 || (omitempty && !hasHTTPRule(file.Services)) {
+	if len(file.Services) == 0 || (omitempty && !hasEventRule(file.Services)) {
 		return nil
 	}
 	filename := file.GeneratedFilenamePrefix + "_event.pb.go"
@@ -109,15 +109,15 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	}
 }
 
-func hasHTTPRule(services []*protogen.Service) bool {
+func hasEventRule(services []*protogen.Service) bool {
 	for _, service := range services {
 		for _, method := range service.Methods {
 			if method.Desc.IsStreamingClient() || method.Desc.IsStreamingServer() {
 				continue
 			}
 
-			option := method.Desc.Options()
-			if option != nil {
+			eventName, ok := proto.GetExtension(method.Desc.Options(), pb.E_EventName).(string)
+			if eventName != "" && ok {
 				return true
 			}
 		}
