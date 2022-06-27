@@ -121,3 +121,17 @@ func (c *TestServiceEventClientImpl) TestMethod(ctx context.Context, req *TestRe
 }
 
 ```
+
+## 如何配置私有仓库依赖
+* 配置私有库域名
+```bash
+    go env -w GOPRIVATE=code.aliyun.com
+```
+* code.aliyun.com上生成access token
+```bash
+    git config --global http.extraheader "PRIVATE-TOKEN: YOUR_PRIVATE_TOKEN"
+```
+* 配置git将请求从ssh转换为http
+```bash
+    git config --global url."git@code.aliyun.com:fz.7799520.com/".insteadOf "https://code.aliyun.com/fz.7799520.com/"
+```
