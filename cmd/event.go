@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/go-kratos/kratos/v2/log"
+
 	pb "code.aliyun.com/fz.7799520.com/protoc-gen-go-event/pb/event/options"
 
 	"github.com/ThreeDotsLabs/watermill"
@@ -45,6 +47,7 @@ var methodSets = make(map[string]int)
 // generateFile generates a _event.pb.go file containing kratos errors definitions.
 func generateFile(gen *protogen.Plugin, file *protogen.File, omitempty bool) *protogen.GeneratedFile {
 	if len(file.Services) == 0 || (omitempty && !hasEventRule(file.Services)) {
+		log.Debug("no event rule")
 		return nil
 	}
 	filename := file.GeneratedFilenamePrefix + "_event.pb.go"
