@@ -18,7 +18,6 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/go-kratos/kratos/v2"
-	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"
@@ -125,59 +124,6 @@ func hasEventRule(services []*protogen.Service) bool {
 		}
 	}
 	return false
-}
-
-func buildHTTPRule(g *protogen.GeneratedFile, m *protogen.Method, rule *annotations.HttpRule) *methodDesc {
-	var (
-		path         string
-		method       string
-		body         string
-		responseBody string
-	)
-	switch pattern := rule.Pattern.(type) {
-	case *annotations.HttpRule_Get:
-		path = pattern.Get
-		method = "GET"
-	case *annotations.HttpRule_Put:
-		path = pattern.Put
-		method = "PUT"
-	case *annotations.HttpRule_Post:
-		path = pattern.Post
-		method = "POST"
-	case *annotations.HttpRule_Delete:
-		path = pattern.Delete
-		method = "DELETE"
-	case *annotations.HttpRule_Patch:
-		path = pattern.Patch
-		method = "PATCH"
-	case *annotations.HttpRule_Custom:
-		path = pattern.Custom.Path
-		method = pattern.Custom.Kind
-	}
-	body = rule.Body
-	responseBody = rule.ResponseBody
-	md := buildMethodDesc(g, m, method, path)
-	if method == "GET" || method == "DELETE" {
-		if body != "" {
-			_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s body should not be declared.\n", method, path)
-		}
-		md.HasBody = false
-	} else if body == "*" {
-		md.HasBody = true
-		md.Body = ""
-	} else if body != "" {
-		md.HasBody = true
-		md.Body = "." + camelCaseVars(body)
-	} else {
-		md.HasBody = false
-		_, _ = fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: %s %s does not declare a body.\n", method, path)
-	}
-	if responseBody == "*" {
-		md.ResponseBody = ""
-	} else if responseBody != "" {
-		md.ResponseBody = "." + camelCaseVars(responseBody)
-	}
-	return md
 }
 
 func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path string) *methodDesc {

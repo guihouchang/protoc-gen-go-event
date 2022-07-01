@@ -46,22 +46,16 @@ type {{.ServiceType}}EventClient interface {
 }
 	
 type {{.ServiceType}}EventClientImpl struct{
-	conn *amqp.Connection
+	publisher message.Publisher
 }
 	
-func New{{.ServiceType}}EventClient (conn *amqp.Connection) {{.ServiceType}}EventClient {
-	return &{{.ServiceType}}EventClientImpl{conn}
+func New{{.ServiceType}}EventClient (publisher message.Publisher) {{.ServiceType}}EventClient {
+	return &{{.ServiceType}}EventClientImpl{publisher}
 }
 
 {{range .MethodSets}}
 func (c *{{$svrType}}EventClientImpl) {{.Name}}(ctx context.Context, req *{{.Request}}) error {
-	ch, err := c.conn.Channel()
-	if err != nil {
-		return err
-	}
-
-	defer ch.Close()
-	exchangeName := "{{.Path}}"
+	topic := "{{.Path}}"
 	byteData, err := protojson.Marshal(req)
 	if err != nil {
 		return err
@@ -70,13 +64,7 @@ func (c *{{$svrType}}EventClientImpl) {{.Name}}(ctx context.Context, req *{{.Req
 	msg := message.NewMessage(watermill.NewUUID(), byteData)
 	msg.SetContext(ctx)
 
-	defaultMarshaler := amqp1.DefaultMarshaler{}
-	pMsg, err := defaultMarshaler.Marshal(msg)
-	if err != nil {
-		return err
-	}
-
-	return ch.Publish(exchangeName, "", false, false, pMsg)
+	return c.publisher.Publish(topic, msg)
 }
 {{end}}
 `
