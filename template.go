@@ -15,12 +15,14 @@ type {{.ServiceType}}EventServer interface {
 {{- end}}
 }
 
-func Register{{.ServiceType}}EventServer(r *message.Router, sub message.Subscriber, srv {{.ServiceType}}EventServer) {
+type SubscriberGenerator func() message.Subscriber
+
+func Register{{.ServiceType}}EventServer(r *message.Router, sg SubscriberGenerator, srv {{.ServiceType}}EventServer) {
 	{{- range .Methods}}
 	r.AddNoPublisherHandler(
 		"{{.Path}}",
 		"{{.Path}}",
-		sub,
+		sg(),
 		_{{$svrType}}_{{.Name}}{{.Num}}_Event_Handler(srv),
 	)
 	{{- end}}

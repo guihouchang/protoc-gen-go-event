@@ -97,7 +97,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		}
 
 		str, ok := proto.GetExtension(method.Desc.Options(), pb.E_EventName).(string)
-		if !ok {
+		if !ok || str == "" {
 			continue
 		}
 
