@@ -61,15 +61,33 @@ var _ = protojson.Marshal
 
 type TestServiceEventServer interface {
 	TestMethod(context.Context, *TestRequest) error
+	TestMethod1(context.Context, *TestRequest) error
 }
 
 func RegisterTestServiceEventServer(r *message.Router, sub message.Subscriber, srv TestServiceEventServer) {
+	r.AddNoPublisherHandler(
+		"",
+		"",
+		sub,
+		_TestService_TestMethod10_Event_Handler(srv),
+	)
 	r.AddNoPublisherHandler(
 		"/test/test",
 		"/test/test",
 		sub,
 		_TestService_TestMethod0_Event_Handler(srv),
 	)
+}
+
+func _TestService_TestMethod10_Event_Handler(srv TestServiceEventServer) func(msg *message.Message) error {
+	return func(msg *message.Message) error {
+		var req TestRequest
+		err := protojson.Unmarshal(msg.Payload, &req)
+		if err != nil {
+			return err
+		}
+		return srv.TestMethod1(msg.Context(), &req)
+	}
 }
 
 func _TestService_TestMethod0_Event_Handler(srv TestServiceEventServer) func(msg *message.Message) error {
@@ -85,24 +103,19 @@ func _TestService_TestMethod0_Event_Handler(srv TestServiceEventServer) func(msg
 
 type TestServiceEventClient interface {
 	TestMethod(ctx context.Context, req *TestRequest) error
+	TestMethod1(ctx context.Context, req *TestRequest) error
 }
 
 type TestServiceEventClientImpl struct {
-	conn *amqp.Connection
+	publisher message.Publisher
 }
 
-func NewTestServiceEventClient(conn *amqp.Connection) TestServiceEventClient {
-	return &TestServiceEventClientImpl{conn}
+func NewTestServiceEventClient(publisher message.Publisher) TestServiceEventClient {
+	return &TestServiceEventClientImpl{publisher}
 }
 
 func (c *TestServiceEventClientImpl) TestMethod(ctx context.Context, req *TestRequest) error {
-	ch, err := c.conn.Channel()
-	if err != nil {
-		return err
-	}
-
-	defer ch.Close()
-	exchangeName := "/test/test"
+	topic := "/test/test"
 	byteData, err := protojson.Marshal(req)
 	if err != nil {
 		return err
@@ -111,27 +124,20 @@ func (c *TestServiceEventClientImpl) TestMethod(ctx context.Context, req *TestRe
 	msg := message.NewMessage(watermill.NewUUID(), byteData)
 	msg.SetContext(ctx)
 
-	defaultMarshaler := amqp1.DefaultMarshaler{}
-	pMsg, err := defaultMarshaler.Marshal(msg)
+	return c.publisher.Publish(topic, msg)
+}
+
+func (c *TestServiceEventClientImpl) TestMethod1(ctx context.Context, req *TestRequest) error {
+	topic := ""
+	byteData, err := protojson.Marshal(req)
 	if err != nil {
 		return err
 	}
 
-	return ch.Publish(exchangeName, "", false, false, pMsg)
+	msg := message.NewMessage(watermill.NewUUID(), byteData)
+	msg.SetContext(ctx)
+
+	return c.publisher.Publish(topic, msg)
 }
 
-```
-
-## 如何配置私有仓库依赖
-* 配置私有库域名
-```bash
-    go env -w GOPRIVATE=code.aliyun.com
-```
-* code.aliyun.com上生成access token
-```bash
-    git config --global http.extraheader "PRIVATE-TOKEN: YOUR_PRIVATE_TOKEN"
-```
-* 配置git将请求从ssh转换为http
-```bash
-    git config --global url."git@code.aliyun.com:fz.7799520.com/".insteadOf "https://code.aliyun.com/fz.7799520.com/"
 ```
