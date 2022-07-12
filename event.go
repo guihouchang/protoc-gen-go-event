@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	pb "code.aliyun.com/7799520b/protoc-gen-go-event/pb/event/options"
+	pb "codeup.aliyun.com/7799520/b/protoc-gen-go-event/pb/event/options"
 
 	"github.com/ThreeDotsLabs/watermill"
 	wamqp "github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
