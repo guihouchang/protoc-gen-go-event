@@ -8,7 +8,7 @@ package test;
 import "event/options/event.proto";
 
 
-option go_package = "protoc-gen-go-event/test/pb";
+option go_package = "codeup.aliyun.com/7799520/b/protoc-gen-go-event/test/pb";
 
 service TestService {
   rpc TestMethod (TestRequest) returns (TestResponse) {
