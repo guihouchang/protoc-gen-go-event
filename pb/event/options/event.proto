@@ -1,7 +1,7 @@
 syntax = "proto3";
 package event;
 
-option go_package = "code.aliyun.com/fz.7799520.com/protoc-gen-go-event/pb/event/options";
+option go_package = "code.aliyun.com/7799520b/protoc-gen-go-event/pb/event/options";
 
 import "google/protobuf/descriptor.proto";
 

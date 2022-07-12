@@ -7,11 +7,12 @@
 package pb
 
 import (
-	_ "code.aliyun.com/fz.7799520.com/protoc-gen-go-event/pb/event/options"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	_ "code.aliyun.com/7799520b/protoc-gen-go-event/pb/event/options"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (

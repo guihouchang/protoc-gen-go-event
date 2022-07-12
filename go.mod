@@ -1,11 +1,10 @@
-module code.aliyun.com/fz.7799520.com/protoc-gen-go-event
+module code.aliyun.com/7799520b/protoc-gen-go-event
 
 go 1.17
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.2.0-rc.11
 	github.com/go-kratos/kratos/v2 v2.3.1
-	google.golang.org/genproto v0.0.0-20220615141314-f1464d18c36b
 	google.golang.org/protobuf v1.28.0
 )
 
@@ -19,6 +18,7 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
+	google.golang.org/genproto v0.0.0-20220615141314-f1464d18c36b // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v3 v3.0.0 // indirect
 )
