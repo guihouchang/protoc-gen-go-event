@@ -20,9 +20,9 @@ type SubscriberGenerator func(topic string) message.Subscriber
 func Register{{.ServiceType}}EventServer(r *message.Router, sg SubscriberGenerator, srv {{.ServiceType}}EventServer) {
 	{{- range .Methods}}
 	r.AddNoPublisherHandler(
-		"{{.Path}}",
-		"{{.Path}}",
-		sg("{{.Path}}"),
+		"{{.EventName}}",
+		"{{.EventName}}",
+		sg("{{.EventName}}"),
 		_{{$svrType}}_{{.Name}}{{.Num}}_Event_Handler(srv),
 	)
 	{{- end}}
@@ -57,7 +57,7 @@ func New{{.ServiceType}}EventClient (publisher message.Publisher) {{.ServiceType
 
 {{range .MethodSets}}
 func (c *{{$svrType}}EventClientImpl) {{.Name}}(ctx context.Context, req *{{.Request}}) error {
-	topic := "{{.Path}}"
+	topic := "{{.EventName}}"
 	byteData, err := protojson.Marshal(req)
 	if err != nil {
 		return err
@@ -65,7 +65,10 @@ func (c *{{$svrType}}EventClientImpl) {{.Name}}(ctx context.Context, req *{{.Req
 
 	msg := message.NewMessage(watermill.NewUUID(), byteData)
 	msg.SetContext(ctx)
-
+	{{if gt .EventDelay 0}}
+		// 设置延迟队列时间，单位为{{.EventDelay}}ms
+		msg.Metadata.Set("x-delay", "{{.EventDelay}}")
+	{{end}}
 	return c.publisher.Publish(topic, msg)
 }
 {{end}}
@@ -85,13 +88,9 @@ type methodDesc struct {
 	Num     int
 	Request string
 	Reply   string
-	// http_rule
-	Path         string
-	Method       string
-	HasVars      bool
-	HasBody      bool
-	Body         string
-	ResponseBody string
+	// event_rule
+	EventName  string // 事件名称
+	EventDelay int32  // 延迟时间
 }
 
 func (s *serviceDesc) execute() string {

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
@@ -14,8 +13,6 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/streadway/amqp"
 	"google.golang.org/protobuf/encoding/protojson"
-
-	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/go-kratos/kratos/v2"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -96,13 +93,12 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 			continue
 		}
 
-		str, ok := proto.GetExtension(method.Desc.Options(), pb.E_EventName).(string)
-		if !ok || str == "" {
+		event, ok := proto.GetExtension(method.Desc.Options(), pb.E_Event).(*pb.Event)
+		if !ok || event.GetName() == "" {
 			continue
 		}
 
-		path := str
-		sd.Methods = append(sd.Methods, buildMethodDesc(g, method, "", path))
+		sd.Methods = append(sd.Methods, buildMethodDesc(g, method, event.GetName(), event.GetDelay()))
 	}
 
 	if len(sd.Methods) != 0 {
@@ -117,8 +113,8 @@ func hasEventRule(services []*protogen.Service) bool {
 				continue
 			}
 
-			eventName, ok := proto.GetExtension(method.Desc.Options(), pb.E_EventName).(string)
-			if eventName != "" && ok {
+			event, ok := proto.GetExtension(method.Desc.Options(), pb.E_Event).(*pb.Event)
+			if event != nil && event.GetName() != "" && ok {
 				return true
 			}
 		}
@@ -126,45 +122,16 @@ func hasEventRule(services []*protogen.Service) bool {
 	return false
 }
 
-func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, method, path string) *methodDesc {
+func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, name string, delay int32) *methodDesc {
 	defer func() { methodSets[m.GoName]++ }()
 
-	vars := buildPathVars(path)
-	fields := m.Input.Desc.Fields()
-
-	for v, s := range vars {
-		if s != nil {
-			path = replacePath(v, *s, path)
-		}
-		for _, field := range strings.Split(v, ".") {
-			if strings.TrimSpace(field) == "" {
-				continue
-			}
-			if strings.Contains(field, ":") {
-				field = strings.Split(field, ":")[0]
-			}
-			fd := fields.ByName(protoreflect.Name(field))
-			if fd == nil {
-				fmt.Fprintf(os.Stderr, "\u001B[31mERROR\u001B[m: The corresponding field '%s' declaration in message could not be found in '%s'\n", v, path)
-				os.Exit(2)
-			}
-			if fd.IsMap() {
-				fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: The field in path:'%s' shouldn't be a map.\n", v)
-			} else if fd.IsList() {
-				fmt.Fprintf(os.Stderr, "\u001B[31mWARN\u001B[m: The field in path:'%s' shouldn't be a list.\n", v)
-			} else if fd.Kind() == protoreflect.MessageKind || fd.Kind() == protoreflect.GroupKind {
-				fields = fd.Message().Fields()
-			}
-		}
-	}
 	return &methodDesc{
-		Name:    m.GoName,
-		Num:     methodSets[m.GoName],
-		Request: g.QualifiedGoIdent(m.Input.GoIdent),
-		Reply:   g.QualifiedGoIdent(m.Output.GoIdent),
-		Path:    path,
-		Method:  method,
-		HasVars: len(vars) > 0,
+		Name:       m.GoName,
+		Num:        methodSets[m.GoName],
+		Request:    g.QualifiedGoIdent(m.Input.GoIdent),
+		Reply:      g.QualifiedGoIdent(m.Output.GoIdent),
+		EventName:  name,
+		EventDelay: delay,
 	}
 }
 

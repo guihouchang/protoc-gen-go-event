@@ -12,7 +12,10 @@ service TestService {
   }
 
   rpc TestMethod (TestRequest) returns (TestResponse) {
-    option (event.eventName) = "/test/test";
+    option (event.event) = {
+      name: "/test/test111",
+      delay: 100,
+    };
   }
 }
 

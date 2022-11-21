@@ -6,6 +6,12 @@ option go_package = "codeup.aliyun.com/7799520/b/protoc-gen-go-event/pb/event/op
 import "google/protobuf/descriptor.proto";
 
 
+message Event {
+  string name = 1; // 事件名称
+  optional int32 delay = 2; // 延迟时间，默认为0ms
+}
+
+
 extend google.protobuf.MethodOptions {
-  string eventName = 73295728;
+  Event event = 73295728;
 }
