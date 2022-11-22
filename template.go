@@ -44,6 +44,9 @@ func _{{$svrType}}_{{.Name}}{{.Num}}_Event_Handler(srv {{$svrType}}EventServer) 
 type {{.ServiceType}}EventClient interface {
 {{- range .MethodSets}}
 	{{.Name}}(ctx context.Context, req *{{.Request}}) error
+	{{if gt .EventDelay 0 }}
+    {{.Name}}WithDelay(ctx context.Context, req *{{.Request}}, delay int32) error
+	{{end}}
 {{- end}}
 }
 	
@@ -71,6 +74,22 @@ func (c *{{$svrType}}EventClientImpl) {{.Name}}(ctx context.Context, req *{{.Req
 	{{end}}
 	return c.publisher.Publish(topic, msg)
 }
+{{end}}
+{{range .MethodSets}}
+{{if gt .EventDelay 0}}
+func (c *{{$svrType}}EventClientImpl) {{.Name}}WithDelay(ctx context.Context, req *{{.Request}}, delay int32) error {
+	topic := "{{.EventName}}"
+	byteData, err := protojson.Marshal(req)
+	if err != nil {
+		return err
+	}
+
+	msg := message.NewMessage(watermill.NewUUID(), byteData)
+	msg.SetContext(ctx)
+	msg.Metadata.Set("x-delay", fmt.Sprintf("%d", delay))
+	return c.publisher.Publish(topic, msg)
+}
+{{end}}
 {{end}}
 `
 

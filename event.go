@@ -22,6 +22,7 @@ import (
 
 const (
 	contextPackage   = protogen.GoImportPath("context")
+	fmtPackage       = protogen.GoImportPath("fmt")
 	amqpPackage      = protogen.GoImportPath("github.com/streadway/amqp")
 	wamqpPakage      = protogen.GoImportPath("github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp")
 	messagePackage   = protogen.GoImportPath("github.com/ThreeDotsLabs/watermill/message")
