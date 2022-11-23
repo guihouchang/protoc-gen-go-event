@@ -15,8 +15,6 @@ type {{.ServiceType}}EventServer interface {
 {{- end}}
 }
 
-type {{.ServiceType}}SubscriberGenerator func(topic string) message.Subscriber
-
 func Register{{.ServiceType}}EventServer(r *message.Router, sg func(topic string) message.Subscriber, srv {{.ServiceType}}EventServer) {
 	{{- range .Methods}}
 	r.AddNoPublisherHandler(
