@@ -31,6 +31,7 @@ const (
 )
 
 var _ = new(context.Context)
+var _ = fmt.Sprint()
 var _ = new(amqp.Table)
 var _ = new(wamqp.Config)
 var _ = new(message.Message)
@@ -65,6 +66,7 @@ func generateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 	g.P("// This is a compile-time assertion to ensure that this generated file")
 	g.P("// is compatible with the kratos package it is being compiled against.")
 	g.P("var _ = new(", contextPackage.Ident("Context"), ")")
+	g.P("var _ = ", fmtPackage.Ident("Sprint()"))
 	g.P("var _ = new(", amqpPackage.Ident("Table"), ")")
 	g.P("var _ = new(", wamqpPakage.Ident("Config"), ")")
 	g.P("var _ = new(", messagePackage.Ident("Message"), ")")
