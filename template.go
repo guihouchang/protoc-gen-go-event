@@ -43,7 +43,7 @@ type {{.ServiceType}}EventClient interface {
 {{- range .MethodSets}}
 	{{.Name}}(ctx context.Context, req *{{.Request}}) error
 	{{if gt .EventDelay 0 }}
-    {{.Name}}WithDelay(ctx context.Context, req *{{.Request}}, delay int32) error
+    {{.Name}}WithDelay(ctx context.Context, req *{{.Request}}, delay uint64) error
 	{{end}}
 {{- end}}
 }
@@ -75,7 +75,7 @@ func (c *{{$svrType}}EventClientImpl) {{.Name}}(ctx context.Context, req *{{.Req
 {{end}}
 {{range .MethodSets}}
 {{if gt .EventDelay 0}}
-func (c *{{$svrType}}EventClientImpl) {{.Name}}WithDelay(ctx context.Context, req *{{.Request}}, delay int32) error {
+func (c *{{$svrType}}EventClientImpl) {{.Name}}WithDelay(ctx context.Context, req *{{.Request}}, delay uint64) error {
 	topic := "{{.EventName}}"
 	byteData, err := protojson.Marshal(req)
 	if err != nil {
@@ -107,7 +107,7 @@ type methodDesc struct {
 	Reply   string
 	// event_rule
 	EventName  string // 事件名称
-	EventDelay int32  // 延迟时间
+	EventDelay uint64 // 延迟时间
 }
 
 func (s *serviceDesc) execute() string {

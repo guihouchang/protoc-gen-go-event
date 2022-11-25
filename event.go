@@ -123,7 +123,7 @@ func hasEventRule(services []*protogen.Service) bool {
 	return false
 }
 
-func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, name string, delay int32) *methodDesc {
+func buildMethodDesc(g *protogen.GeneratedFile, m *protogen.Method, name string, delay uint64) *methodDesc {
 	defer func() { methodSets[m.GoName]++ }()
 
 	return &methodDesc{
