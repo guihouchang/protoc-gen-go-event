@@ -13,6 +13,7 @@ type {{.ServiceType}}EventServer interface {
 {{- range .MethodSets}}
 	{{.Name}}(context.Context, *{{.Request}}) error
 {{- end}}
+mustEmbedUnimplemented{{.ServiceType}}EventServer()
 }
 
 func Register{{.ServiceType}}EventServer(r *message.Router, sg func(topic string) message.Subscriber, srv {{.ServiceType}}EventServer) {
@@ -73,6 +74,7 @@ func (c *{{$svrType}}EventClientImpl) {{.Name}}(ctx context.Context, req *{{.Req
 	return c.publisher.Publish(topic, msg)
 }
 {{end}}
+
 {{range .MethodSets}}
 {{if gt .EventDelay 0}}
 func (c *{{$svrType}}EventClientImpl) {{.Name}}WithDelay(ctx context.Context, req *{{.Request}}, delay uint64) error {
@@ -89,6 +91,18 @@ func (c *{{$svrType}}EventClientImpl) {{.Name}}WithDelay(ctx context.Context, re
 }
 {{end}}
 {{end}}
+
+type Unsafe{{.ServiceType}}EventServer interface {
+	mustEmbedUnimplemented{{.ServiceType}}EventServer()
+}
+type Unimplemented{{.ServiceType}}EventServer struct {}
+
+{{- range .MethodSets}}
+func (Unimplemented{{$svrType}}EventServer) {{.Name}}(context.Context, *{{.Request}}) error {
+	return nil
+}
+{{- end}}
+
 `
 
 type serviceDesc struct {
