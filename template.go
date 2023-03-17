@@ -103,6 +103,8 @@ func (Unimplemented{{$svrType}}EventServer) {{.Name}}(context.Context, *{{.Reque
 }
 {{- end}}
 
+func (Unimplemented{{$svrType}}EventServer) mustEmbedUnimplemented{{.ServiceType}}EventServer() {}
+
 `
 
 type serviceDesc struct {
