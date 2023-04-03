@@ -67,6 +67,7 @@ func (c *{{$svrType}}EventClientImpl) {{.Name}}(ctx context.Context, req *{{.Req
 
 	msg := message.NewMessage(watermill.NewUUID(), byteData)
 	msg.SetContext(ctx)
+    msg.Metadata.Set("topic", topic)
 	{{if gt .EventDelay 0}}
 		// 设置延迟队列时间，单位为{{.EventDelay}}ms
 		msg.Metadata.Set("x-delay", "{{.EventDelay}}")
@@ -86,6 +87,7 @@ func (c *{{$svrType}}EventClientImpl) {{.Name}}WithDelay(ctx context.Context, re
 
 	msg := message.NewMessage(watermill.NewUUID(), byteData)
 	msg.SetContext(ctx)
+    msg.Metadata.Set("topic", topic)
 	msg.Metadata.Set("x-delay", fmt.Sprintf("%d", delay))
 	return c.publisher.Publish(topic, msg)
 }
