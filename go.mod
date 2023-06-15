@@ -1,4 +1,4 @@
-module codeup.aliyun.com/7799520/b/protoc-gen-go-event
+module github.com/guihouchang/protoc-gen-go-event
 
 go 1.17
 
